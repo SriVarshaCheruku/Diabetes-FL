@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Risk Predictor</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🩺 Diabetes Risk Predictor</h1>
+            <p>Enter your health information to assess diabetes risk</p>
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+        </div>
+
+        <form action="/predict" method="post" id="diabetesForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="pregnancies">👶 Pregnancies</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="pregnancies" name="Pregnancies" min="0" max="17" step="1" required>
+                        <div class="tooltip">Number of times pregnant</div>
+                    </div>
+                    <div class="range-info">Range: 0-17 pregnancies</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="glucose">🩸 Glucose Level</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="glucose" name="Glucose" min="50" max="200" step="1" required>
+                        <div class="tooltip">Blood glucose concentration (mg/dL)</div>
+                    </div>
+                    <div class="range-info">Range: 50-200 mg/dL</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bloodpressure">💓 Blood Pressure</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="bloodpressure" name="BloodPressure" min="40" max="122" step="1" required>
+                        <div class="tooltip">Diastolic blood pressure (mm Hg)</div>
+                    </div>
+                    <div class="range-info">Range: 40-122 mm Hg</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="skinthickness">📏 Skin Thickness</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="skinthickness" name="SkinThickness" min="10" max="80" step="1" required>
+                        <div class="tooltip">Triceps skin fold thickness (mm)</div>
+                    </div>
+                    <div class="range-info">Range: 10-80 mm</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="insulin">💉 Insulin Level</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="insulin" name="Insulin" min="15" max="400" step="1" required>
+                        <div class="tooltip">2-Hour serum insulin (mu U/ml)</div>
+                    </div>
+                    <div class="range-info">Range: 15-400 mu U/ml</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bmi">⚖️ Body Mass Index</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="bmi" name="BMI" min="15" max="67.1" step="0.1" required>
+                        <div class="tooltip">Weight in kg/(Height in m)²</div>
+                    </div>
+                    <div class="range-info">Range: 15.0-67.1 kg/m²</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="pedigree">🧬 Diabetes Pedigree Function</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="pedigree" name="DiabetesPedigreeFunction" min="0.05" max="2.5" step="0.01" required>
+                        <div class="tooltip">Genetic diabetes likelihood</div>
+                    </div>
+                    <div class="range-info">Range: 0.05-2.5</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="age">🎂 Age</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="age" name="Age" min="21" max="81" step="1" required>
+                        <div class="tooltip">Age in years</div>
+                    </div>
+                    <div class="range-info">Range: 21-81 years</div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                🔍 Predict Diabetes Risk
+            </button>
+        </form>
+
+        <div class="disclaimer">
+            <p>⚠️ This tool is for educational purposes only. Always consult with healthcare professionals for medical advice.</p>
+        </div>
+    </div>
+
+    <script>
+        // Progress bar animation
+        const form = document.getElementById('diabetesForm');
+        const progressBar = document.getElementById('progressBar');
+        const inputs = form.querySelectorAll('input[required]');
+        
+        function updateProgress() {
+            const filledInputs = Array.from(inputs).filter(input => input.value.trim() !== '');
+            const progress = (filledInputs.length / inputs.length) * 100;
+            progressBar.style.width = progress + '%';
+        }
+
+        inputs.forEach(input => {
+            input.addEventListener('input', updateProgress);
+            input.addEventListener('focus', function() {
+                this.parentElement.parentElement.style.transform = 'scale(1.02)';
+            });
+            input.addEventListener('blur', function() {
+                this.parentElement.parentElement.style.transform = 'scale(1)';
+            });
+        });
+
+        // Form submission animation
+        form.addEventListener('submit', function(e) {
+            const submitBtn = form.querySelector('.submit-btn');
+            submitBtn.innerHTML = '⏳ Processing...';
+            submitBtn.style.background = 'linear-gradient(135deg, #48bb78, #38a169)';
+        });
+
+        // Initialize progress
+        updateProgress();
+
+        // Add floating animation to container
+        const container = document.querySelector('.container');
+        let floatDirection = 1;
+        
+        setInterval(() => {
+            const currentTransform = container.style.transform || 'translateY(0px)';
+            const currentY = parseFloat(currentTransform.match(/translateY\(([-\d.]+)px\)/) || [0, 0])[1];
+            
+            if (currentY >= 5) floatDirection = -1;
+            if (currentY <= -5) floatDirection = 1;
+            
+            container.style.transform = `translateY(${currentY + (floatDirection * 0.2)}px)`;
+        }, 100);
+    </script>
+</body>
+</html>

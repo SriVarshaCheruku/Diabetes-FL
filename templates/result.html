@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Risk Assessment Results</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🩺 Assessment Results</h1>
+        </div>
+
+        <!-- Result Card -->
+        <div class="result-card {% if risk_level == 'High' %}high-risk{% elif risk_level == 'Moderate' %}moderate-risk{% else %}low-risk{% endif %}">
+            <div class="result-icon">
+                {% if risk_level == 'High' %}⚠️
+                {% elif risk_level == 'Moderate' %}🔶
+                {% else %}✅
+                {% endif %}
+            </div>
+            <div class="result-text">{{ interpretation.result }}</div>
+            <div class="result-description">{{ interpretation.description }}</div>
+            
+            <!-- Confidence Section -->
+            <div class="confidence-section">
+                <div class="confidence-label">Model Confidence</div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: {{ confidence }}%;"></div>
+                </div>
+                <div class="confidence-text">{{ confidence }}% Confidence</div>
+            </div>
+        </div>
+
+        <!-- Statistics Grid -->
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">{{ model_stats.accuracy }}%</div>
+                <div class="stat-label">Model Accuracy</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ '{:,}'.format(model_stats.total_assessments) }}</div>
+                <div class="stat-label">Total Assessments</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ model_stats.features_count }}</div>
+                <div class="stat-label">Health Factors</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ probability_diabetic }}%</div>
+                <div class="stat-label">Risk Probability</div>
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="recommendations">
+            <h3>📋 Personalized Recommendations</h3>
+            <ul>
+                {% for recommendation in interpretation.recommendations %}
+                <li>{{ recommendation }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="/" class="btn btn-primary">🔄 New Assessment</a>
+            <button class="btn btn-secondary" onclick="window.print()">📄 Save Results</button>
+            <button class="btn btn-secondary" onclick="shareResults()">📤 Share</button>
+        </div>
+
+        <div class="disclaimer">
+            <p>
+                <strong>⚠️ Medical Disclaimer:</strong><br>
+                This assessment is for educational purposes only and should not replace professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Share functionality
+        function shareResults() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Diabetes Risk Assessment Results',
+                    text: 'I completed a diabetes risk assessment. {{ interpretation.result }}',
+                    url: window.location.origin
+                });
+            } else {
+                const text = 'I completed a diabetes risk assessment using this AI tool: ' + window.location.origin;
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Assessment link copied to clipboard!');
+                });
+            }
+        }
+
+        // Animate confidence bar on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const confidenceFill = document.querySelector('.confidence-fill');
+            const targetWidth = {{ confidence }};
+            
+            // Start from 0 and animate to target
+            confidenceFill.style.width = '0%';
+            setTimeout(() => {
+                confidenceFill.style.width = targetWidth + '%';
+            }, 500);
+        });
+
+        // Add floating animation
+        const container = document.querySelector('.container');
+        let floatDirection = 1;
+        
+        setInterval(() => {
+            const currentTransform = container.style.transform || 'translateY(0px)';
+            const currentY = parseFloat(currentTransform.match(/translateY\(([-\d.]+)px\)/) || [0, 0])[1];
+            
+            if (currentY >= 3) floatDirection = -1;
+            if (currentY <= -3) floatDirection = 1;
+            
+            container.style.transform = `translateY(${currentY + (floatDirection * 0.1)}px)`;
+        }, 100);
+    </script>
+</body>
+</html>
